@@ -11,7 +11,7 @@ from matplotlib.figure import Figure
 from tkinter import *
 from collections import defaultdict
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
-
+import tqdm
 
 #%% 
 @pd.api.extensions.register_dataframe_accessor("descriptor")
@@ -44,7 +44,7 @@ class myDataFrame(pd.DataFrame):
     
     def description(self):
         result = list()
-        for col in self._data.columns:
+        for col in tqdm.tqdm(self._data.columns):
             result.append(self.col_description(col))
         return result
 
@@ -86,7 +86,7 @@ def display(df):
     figures = defaultdict(Figure)
     i = 0
     j = 1
-    for col in df.columns:
+    for col in tqdm.tqdm(df.columns):
         description = df.descriptor.col_description(col)
         
         # text
