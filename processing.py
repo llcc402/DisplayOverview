@@ -12,6 +12,7 @@ from tkinter import *
 from collections import defaultdict
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg, NavigationToolbar2TkAgg
 import tqdm
+import numpy as np 
 
 #%% 
 @pd.api.extensions.register_dataframe_accessor("descriptor")
@@ -35,7 +36,8 @@ class myDataFrame(pd.DataFrame):
         
         # print NULL distribution
         if n_null > 0:
-            value_counts.append(pd.Series([n_null], index = ['NULL']))
+            value_counts = value_counts.append(pd.Series([n_null / self._data.shape[0]], 
+                                                         index = ['NULL']))
         
         return col_name, n_distinct, n_null, value_counts
     
@@ -68,8 +70,13 @@ def display(df):
     lbl = Label(root, text = text, bg = "white", fg = "red") 
     lbl.pack(side = 'top')
     
+    # sample a fraction of the df so computer faster
+    if df.shape[0] > 10000:
+        idx = np.random.permutation(df.shape[0])
+        df = df.iloc[idx[:10000]]
+    
     # canvas
-    canvas = Canvas(root, bg = 'grey', width = 1000)
+    canvas = Canvas(root, bg = 'grey', width = 1500)
     canvas.pack(side = 'left', fill = 'y', expand = True)
     
     # scrollbar
@@ -77,7 +84,7 @@ def display(df):
     vbar.pack(side = 'right', fill = 'y')
     
     # window
-    frame = Frame(canvas, bg = 'white', width = 1000)
+    frame = Frame(canvas, bg = 'white', width = 2000)
     frame.bind("<Configure>", lambda event, canvas=canvas: onFrameConfigure(canvas))
     canvas.create_window((0,0), window = frame, anchor = 'nw')
     
@@ -96,9 +103,12 @@ def display(df):
         labels[col].grid(column = i, row = j)
         
         # plot figure
-        figures[col] = Figure(figsize = (3,3))
+        figures[col] = Figure(figsize = (6,6))
         ax = figures[col].add_subplot(111)
-        description[-1].plot(kind = 'barh', ax = ax)
+        description[-1].plot(kind = 'bar', 
+                             ax = ax, 
+                             rot = 45,
+                             figsize = (6,6))
         
         # show figure
         canvas = FigureCanvasTkAgg(figures[col], frame)
@@ -107,7 +117,7 @@ def display(df):
         
         # compute column of the window
         i += 1
-        i %= 4
+        i %= 3
         
         # compute row of the window
         if i == 0:
