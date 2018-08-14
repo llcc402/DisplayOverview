@@ -22,22 +22,25 @@ class myDataFrame(pd.DataFrame):
     
     def col_description(self, col_name):
         
-        # count three important values
-        n_distinct = len(set(self._data[col_name]))
+        # count # distinct
+        not_null = self._data[col_name].loc[self._data[col_name].notnull()]
+        n_distinct = len(set(not_null))
+        
+        # count # null
         n_null = sum(self._data[col_name].isnull())
-        value_counts = self._data[col_name].value_counts()
-        value_counts = value_counts / (len(self._data[col_name]) - n_null)
+        
+        # count freq of each distinct value
+        if n_null == self._data.shape[0]:
+            value_counts = pd.DataFrame({'NULL':[n_null]}, index = ['NULL'])
+        else:
+            value_counts = self._data[col_name].value_counts()
+            value_counts = value_counts / len(self._data[col_name])
               
         # only print 10 distinct value distributions
         if n_distinct > 10:
             value_counts_max = value_counts.iloc[:5]
             value_counts_min = value_counts.iloc[-5:]
             value_counts = pd.concat([value_counts_max, value_counts_min])
-        
-        # print NULL distribution
-        if n_null > 0:
-            value_counts = value_counts.append(pd.Series([n_null / self._data.shape[0]], 
-                                                         index = ['NULL']))
         
         return col_name, n_distinct, n_null, value_counts
     
