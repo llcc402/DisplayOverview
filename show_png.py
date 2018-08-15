@@ -54,8 +54,8 @@ class myDataFrame(pd.DataFrame):
         return result
 
 #%% define texts
-def figure_title(df_name, df_shape):
-    header = "Overview of " + df_name + "\n"
+def figure_title(df_shape):
+    header = "Overview of the data\n"
     text = "Number of Rows: %d\nNumber of Columns: %d\n" %(df_shape[0], df_shape[1])
     if df_shape[0] > 10000:
         remark = "REMARK: Based on a sample of size 10000"
@@ -69,7 +69,7 @@ def sub_figure_title(description):
     return text
 
 #%% deploy
-def display(df, df_name):
+def display(df, dest_name):
     nrows = int(np.ceil(df.shape[1] / 3))
     fig, axs = plt.subplots(nrows = nrows,
                             ncols = 3,
@@ -77,7 +77,7 @@ def display(df, df_name):
     axs = axs.ravel()
     
     # configuration of the whole
-    header_text = figure_title(df_name, df.shape)
+    header_text = figure_title(df.shape)
     fig.suptitle(header_text)
     fig.subplots_adjust(hspace = 0.5)
     
@@ -99,5 +99,5 @@ def display(df, df_name):
 
         i+= 1
     
-    fig.savefig('overview.png')
+    fig.savefig(dest_name + '.png')
     
